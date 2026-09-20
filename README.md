@@ -1,5 +1,9 @@
 ### INTRODUCTION | [ABOUT](ABOUT.md) | [CFC](https://github.com/sz3/cfc) | [LIBCIMBAR](https://github.com/sz3/libcimbar)
 
+> This repository also contains a self-contained Chrome 152+ Manifest V3 text
+> bundle encoder in [`extension/`](extension/). See
+> [`docs/EXTENSION.md`](docs/EXTENSION.md) for installation and use.
+
 ## cimbar: Color Icon Matrix bar codes
 
 cimbar is a proof-of-concept 2D data encoding format -- much like [QR Codes](https://en.wikipedia.org/wiki/QR_code), [JAB codes](https://jabcode.org/), and [Microsoft's HCCB](https://en.wikipedia.org/wiki/High_Capacity_Color_Barcode).
@@ -72,4 +76,3 @@ python -m cimbar.grader clean.txt decode.txt
 ## Would you like to know more?
 
 ### [ABOUT](ABOUT.md) | [LIBCIMBAR](https://github.com/sz3/libcimbar)
-
