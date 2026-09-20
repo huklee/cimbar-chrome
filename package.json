@@ -1,0 +1,12 @@
+{
+  "name": "cimbar-text-bundle-extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests-extension/*.test.js",
+    "test:browser": "node scripts/browser-smoke.js",
+    "check": "node scripts/check-extension.js",
+    "package": "bash scripts/package-extension.sh"
+  }
+}
