@@ -27,6 +27,24 @@ jobs:
         run: coverage run -m unittest
 
       - name: report coverage
+        if: matrix.python-version == '3.11'
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: coveralls
+
+  extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Test extension core
+        run: npm test
+
+      - name: Validate extension package
+        run: npm run check
