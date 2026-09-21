@@ -17,6 +17,7 @@ encoder, so it needs no server, runtime download, account, or host permission.
 - CIMBAR B, Bm, Bu, and legacy 4C modes
 - 5, 10, 15, and 20 rendered frames per second
 - Adjustable 512–2048 px display size while preserving native encoder geometry
+- Stable frame alignment without libcimbar's alternating display offset
 - Pause, restart, fullscreen, wake-lock, and ZIP download controls
 - Local draft persistence through `chrome.storage.local`
 - Manifest V3 compatibility with desktop Chrome 152+

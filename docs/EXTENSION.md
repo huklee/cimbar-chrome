@@ -18,6 +18,8 @@ Use <https://re.cimbar.org/> on a camera-enabled device to scan. The decoder ret
 
 Modes B, Bm, Bu, and legacy 4C match the official encoder. B is fastest in typical conditions, while Bm and Bu progressively trade speed for scan robustness. The recommended starting point is B at 15 RPS and 1024 px.
 
+The extension holds every rendered frame at the same screen position. It suppresses libcimbar's built-in alternating display offset while leaving the encoded frame contents unchanged.
+
 ## Privacy and offline behavior
 
 All document editing, ZIP creation, and CIMBAR encoding occurs inside the extension. Drafts are stored only in `chrome.storage.local`. The extension has no host permissions, makes no application network requests, and contains no telemetry.
