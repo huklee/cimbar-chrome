@@ -13,6 +13,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { min-width: 760px; background: var(--paper); }
 body { margin: 0; color: var(--ink); background: radial-gradient(circle at 75% 10%, #233222 0, transparent 28rem), var(--paper); font-family: var(--sans); }
 button, input, select, textarea { font: inherit; }
@@ -53,7 +54,7 @@ h1 em { color: var(--acid); font-family: Georgia, serif; font-weight: 400; }
 .button.secondary:hover, .button.ghost:hover { border-color: var(--acid); }
 .button.primary { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 56px; color: #111; background: var(--acid); }
 .button.primary:hover { filter: brightness(1.08); }
-.button.primary span { font-size: 21px; }
+.button.primary > span:last-child { font-size: 21px; }
 .button:disabled { opacity: .38; cursor: not-allowed; }
 
 .document-card { margin-bottom: 18px; border: 1px solid var(--line); background: var(--panel); }

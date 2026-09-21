@@ -17,5 +17,5 @@ async function openEditor() {
 }
 
 chrome.action.onClicked.addListener(() => {
-  openEditor().catch((error) => console.error('Unable to open editor', error));
+  openEditor().catch((error) => console.error('Unable to open ZIP editor', error));
 });

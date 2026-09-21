@@ -2,6 +2,7 @@ import { CimbarEncoder } from './lib/encoder.js';
 import { createZip } from './lib/zip.js';
 import { normalizeArchiveName, normalizeEntryName, validateDocuments, validateSettings, VALID_RPS } from './lib/validation.js';
 import { loadDraft, saveDraft } from './lib/storage.js';
+import { createUnlockDetector } from './lib/unlock.js';
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const elements = {
@@ -12,12 +13,19 @@ const elements = {
   display: $('#display'), canvas: $('#cimbar-canvas'), displayFilename: $('#display-filename'),
   displaySettings: $('#display-settings'), pause: $('#pause'), restart: $('#restart'),
   fullscreen: $('#fullscreen'), exit: $('#exit-display'),
+  brand: $('#brand'), brandTitle: $('#brand-title'), brandSubtitle: $('#brand-subtitle'),
+  heroEyebrow: $('#hero-eyebrow'), heroLine: $('#hero-line'), heroAccent: $('#hero-accent'),
+  heroDescription: $('#hero-description'), settingsTitle: $('#settings-title'),
+  buildLabel: $('#build-label'), buildArrow: $('#build-arrow'),
+  transferOnly: [...document.querySelectorAll('[data-transfer-only]')],
 };
 
 let documents = [{ id: crypto.randomUUID(), name: 'document-1', type: 'txt', content: '' }];
 let latestZip = null;
 let pendingTransmission = null;
 let saveTimer = 0;
+let transferUnlocked = false;
+let transferRuntimePromise = null;
 const encoder = new CimbarEncoder(elements.canvas, ({ paused }) => {
   elements.pause.textContent = paused ? 'Resume' : 'Pause';
 });
@@ -33,6 +41,27 @@ function setStatus(message, kind = '') {
   elements.status.dataset.kind = kind;
 }
 
+function loadScript(source) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = source;
+    script.addEventListener('load', resolve, { once: true });
+    script.addEventListener('error', () => reject(new Error(`Unable to load ${source}.`)), { once: true });
+    document.head.append(script);
+  });
+}
+
+function ensureTransferRuntime() {
+  if (!transferRuntimePromise) {
+    transferRuntimePromise = (async () => {
+      await loadScript('cimbar-runtime.js');
+      await loadScript('vendor/cimbar.js');
+      return window.cimbarModuleReady;
+    })();
+  }
+  return transferRuntimePromise;
+}
+
 function currentSettings() {
   return {
     mode: $('input[name="mode"]:checked').value,
@@ -44,9 +73,36 @@ function currentSettings() {
 function updateSummary() {
   const bytes = documents.reduce((sum, item) => sum + new TextEncoder().encode(item.content).length, 0);
   elements.size.textContent = formatBytes(bytes);
-  elements.count.textContent = `${documents.length} ${documents.length === 1 ? 'file' : 'files'} before ZIP/CIMBAR compression`;
+  const compression = transferUnlocked ? 'ZIP/CIMBAR compression' : 'ZIP compression';
+  elements.count.textContent = `${documents.length} ${documents.length === 1 ? 'file' : 'files'} before ${compression}`;
   elements.rpsOutput.value = String(VALID_RPS[Number(elements.rps.value)]);
 }
+
+function unlockTransferMode() {
+  if (transferUnlocked) return;
+  transferUnlocked = true;
+  document.documentElement.dataset.transferMode = 'unlocked';
+  document.title = 'CIMBAR Text Bundle Encoder';
+  elements.brand.setAttribute('aria-label', 'CIMBAR encoder home');
+  elements.brandTitle.textContent = 'CIMBAR';
+  elements.brandSubtitle.textContent = 'TEXT BUNDLE ENCODER';
+  elements.heroEyebrow.textContent = 'AIR-GAPPED FILE TRANSFER';
+  elements.heroLine.textContent = 'Turn text into';
+  elements.heroAccent.textContent = 'moving light.';
+  elements.heroDescription.textContent = 'Compose a small bundle of TXT or XML documents. This extension zips them locally and renders a decoder-compatible CIMBAR stream—nothing leaves this browser.';
+  elements.settingsTitle.textContent = 'Transmission';
+  elements.buildLabel.textContent = 'Build & display CIMBAR';
+  elements.buildArrow.hidden = false;
+  elements.transferOnly.forEach((element) => { element.hidden = false; });
+  updateSummary();
+  setStatus('CIMBAR encoder loading…');
+  ensureTransferRuntime().then(() => {
+    setStatus('CIMBAR transfer mode unlocked.', 'success');
+  }).catch((error) => setStatus(error.message, 'error'));
+}
+
+document.documentElement.dataset.transferMode = 'locked';
+document.addEventListener('keydown', createUnlockDetector(unlockTransferMode));
 
 function draft() {
   return { documents, archiveName: elements.archive.value, settings: currentSettings() };
@@ -134,14 +190,14 @@ elements.add.addEventListener('click', () => addDocument());
 elements.build.addEventListener('click', () => {
   try {
     const entries = validateDocuments(documents);
-    const settings = validateSettings(currentSettings());
+    const settings = transferUnlocked ? validateSettings(currentSettings()) : null;
     const filename = normalizeArchiveName(elements.archive.value);
     const bytes = createZip(entries);
     latestZip = { bytes, filename };
-    pendingTransmission = { bytes, filename, settings };
+    pendingTransmission = transferUnlocked ? { bytes, filename, settings } : null;
     elements.download.disabled = false;
     setStatus(`${filename} ready · ${formatBytes(bytes.length)}`, 'success');
-    elements.warning.showModal();
+    if (transferUnlocked) elements.warning.showModal();
   } catch (error) {
     setStatus(error.message, 'error');
   }
@@ -156,6 +212,7 @@ elements.warning.addEventListener('close', async () => {
   document.body.classList.add('is-displaying');
   setStatus('Preparing CIMBAR frames…');
   try {
+    await ensureTransferRuntime();
     const dimensions = await encoder.encode(transmission.bytes, transmission.filename, transmission.settings);
     setStatus(`Displaying ${transmission.filename} at ${dimensions.width}×${dimensions.height}.`, 'success');
   } catch (error) {
@@ -204,7 +261,9 @@ async function restoreDraft() {
       type: item.type === 'xml' ? 'xml' : 'txt', content: String(item.content ?? ''),
     }));
   }
-  if (typeof saved.archiveName === 'string') elements.archive.value = saved.archiveName;
+  if (typeof saved.archiveName === 'string') {
+    elements.archive.value = saved.archiveName === 'cimbar-bundle' ? 'text-bundle' : saved.archiveName;
+  }
   if (saved.settings) {
     const mode = [...document.querySelectorAll('input[name="mode"]')]
       .find((input) => input.value === saved.settings.mode);
@@ -217,4 +276,3 @@ async function restoreDraft() {
 
 await restoreDraft();
 renderDocuments();
-window.cimbarModuleReady.then(() => setStatus('Offline encoder ready.', 'success')).catch((error) => setStatus(error.message, 'error'));
