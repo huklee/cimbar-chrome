@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CIMBAR Text Bundle Encoder</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="app.html" aria-label="CIMBAR encoder home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span><strong>CIMBAR</strong><small>TEXT BUNDLE ENCODER</small></span>
+    </a>
+    <div class="offline-badge"><span></span> Local-only · Offline ready</div>
+  </header>
+
+  <main>
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">AIR-GAPPED FILE TRANSFER</p>
+      <h1 id="page-title">Turn text into<br><em>moving light.</em></h1>
+      <p>Compose a small bundle of TXT or XML documents. This extension zips them locally and renders a decoder-compatible CIMBAR stream—nothing leaves this browser.</p>
+    </section>
+
+    <div class="workspace">
+      <section class="documents-panel" aria-labelledby="documents-title">
+        <div class="section-heading">
+          <div><span class="step">01</span><h2 id="documents-title">Documents</h2></div>
+          <button class="button secondary" id="add-document" type="button">+ Add document</button>
+        </div>
+        <div id="document-list"></div>
+      </section>
+
+      <aside class="settings-panel" aria-labelledby="settings-title">
+        <div class="section-heading compact"><div><span class="step">02</span><h2 id="settings-title">Transmission</h2></div></div>
+
+        <label class="field">
+          <span>Archive filename</span>
+          <span class="input-suffix"><input id="archive-name" value="cimbar-bundle" autocomplete="off" spellcheck="false"><b>.zip</b></span>
+        </label>
+
+        <fieldset class="field">
+          <legend>Encoding mode</legend>
+          <div class="mode-grid" id="mode-options">
+            <label><input type="radio" name="mode" value="B" checked><span><b>B</b><small>Fast · default</small></span></label>
+            <label><input type="radio" name="mode" value="Bm"><span><b>Bm</b><small>More robust</small></span></label>
+            <label><input type="radio" name="mode" value="Bu"><span><b>Bu</b><small>Most robust</small></span></label>
+            <label><input type="radio" name="mode" value="4C"><span><b>4C</b><small>Legacy color</small></span></label>
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span>RPS <output id="rps-output">15</output></span>
+          <input id="rps" type="range" min="0" max="3" value="2" step="1" list="rps-values">
+          <datalist id="rps-values"><option value="0" label="5"><option value="1" label="10"><option value="2" label="15"><option value="3" label="20"></datalist>
+          <small>Rendered frames per second. 15 is recommended.</small>
+        </label>
+
+        <label class="field">
+          <span>Barcode pixel width</span>
+          <select id="pixels">
+            <option value="512">512 px</option>
+            <option value="768">768 px</option>
+            <option value="1024" selected>1024 px</option>
+            <option value="1280">1280 px</option>
+            <option value="1536">1536 px</option>
+            <option value="2048">2048 px</option>
+          </select>
+          <small>Larger images are easier for distant cameras to resolve.</small>
+        </label>
+
+        <div class="bundle-summary" aria-live="polite">
+          <span>Bundle estimate</span>
+          <strong id="bundle-size">0 B</strong>
+          <small id="bundle-count">1 file before ZIP/CIMBAR compression</small>
+        </div>
+
+        <p id="status" class="status" role="status" aria-live="polite">WASM encoder loading…</p>
+        <button class="button primary" id="build" type="button">Build &amp; display CIMBAR <span>↗</span></button>
+        <button class="button ghost" id="download-zip" type="button" disabled>Download latest ZIP</button>
+      </aside>
+    </div>
+  </main>
+
+  <template id="document-template">
+    <article class="document-card">
+      <div class="document-toolbar">
+        <span class="document-number"></span>
+        <div class="document-actions">
+          <button type="button" data-action="up" title="Move up" aria-label="Move document up">↑</button>
+          <button type="button" data-action="down" title="Move down" aria-label="Move document down">↓</button>
+          <button type="button" data-action="duplicate" title="Duplicate" aria-label="Duplicate document">⧉</button>
+          <button type="button" data-action="delete" title="Delete" aria-label="Delete document">×</button>
+        </div>
+      </div>
+      <div class="filename-row">
+        <label><span>Filename</span><input data-field="name" autocomplete="off" spellcheck="false"></label>
+        <label><span>Format</span><select data-field="type"><option value="txt">TXT</option><option value="xml">XML</option></select></label>
+      </div>
+      <label class="content-field"><span>Content</span><textarea data-field="content" rows="8" spellcheck="true" placeholder="Type or paste text here…"></textarea></label>
+      <div class="document-meta"><span class="character-count">0 characters</span><span class="resolved-name"></span></div>
+    </article>
+  </template>
+
+  <dialog id="warning-dialog">
+    <form method="dialog">
+      <span class="warning-icon" aria-hidden="true">⚠</span>
+      <p class="eyebrow">BEFORE DISPLAYING</p>
+      <h2>Flashing image warning</h2>
+      <p>The CIMBAR display changes rapidly and may affect people with photosensitive epilepsy. Do not stare at the animation. Point the decoder camera at it from a comfortable distance.</p>
+      <div class="dialog-actions">
+        <button class="button ghost" value="cancel">Cancel</button>
+        <button class="button primary" id="confirm-display" value="default">I understand — display</button>
+      </div>
+    </form>
+  </dialog>
+
+  <section id="display" class="display" hidden aria-label="Animated CIMBAR display">
+    <canvas id="cimbar-canvas"></canvas>
+    <div class="display-topline"><span id="display-filename"></span><span id="display-settings"></span></div>
+    <div class="display-controls">
+      <button id="pause" type="button">Pause</button>
+      <button id="restart" type="button">Restart</button>
+      <button id="fullscreen" type="button">Fullscreen</button>
+      <button id="exit-display" type="button">Exit</button>
+    </div>
+    <p class="scan-hint">Open <strong>re.cimbar.org</strong> on a camera-enabled device and center this frame.</p>
+  </section>
+
+  <script src="cimbar-runtime.js"></script>
+  <script src="vendor/cimbar.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

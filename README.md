@@ -1,75 +1,73 @@
-### INTRODUCTION | [ABOUT](ABOUT.md) | [CFC](https://github.com/sz3/cfc) | [LIBCIMBAR](https://github.com/sz3/libcimbar)
+# CIMBAR Text Bundle Encoder
 
-## cimbar: Color Icon Matrix bar codes
+A self-contained Chrome extension for composing multiple TXT or XML documents,
+packaging them into a ZIP archive, and transmitting the archive as an animated
+CIMBAR barcode.
 
-cimbar is a proof-of-concept 2D data encoding format -- much like [QR Codes](https://en.wikipedia.org/wiki/QR_code), [JAB codes](https://jabcode.org/), and [Microsoft's HCCB](https://en.wikipedia.org/wiki/High_Capacity_Color_Barcode).
+All editing, validation, ZIP creation, and encoding happens locally. The
+extension bundles the official `libcimbar` v0.6.8 JavaScript and WebAssembly
+encoder, so it needs no server, runtime download, account, or host permission.
 
-<p align="center">
-<img src="https://github.com/sz3/cimbar-samples/blob/v0.6/b/4cecc30f.png" width="70%" title="A non-animated mode-B cimbar code" >
-</p>
+## Features
 
-## How it works
+- Multiple editable and reorderable text documents
+- TXT and XML output with XML well-formedness validation
+- Editable UTF-8 filenames and archive name
+- Deterministic ZIP32 generation with CRC-32 checksums
+- CIMBAR B, Bm, Bu, and legacy 4C modes
+- 5, 10, 15, and 20 rendered frames per second
+- Adjustable 512–2048 px display size while preserving native encoder geometry
+- Pause, restart, fullscreen, wake-lock, and ZIP download controls
+- Local draft persistence through `chrome.storage.local`
+- Manifest V3 compatibility with desktop Chrome 152+
 
-Cimbar encodes data in a grid of symbols (or icons). There are 16 possible symbols per tile (position) on the grid, encoding 4 bits per tile. In addition, 2-3 color bits can be encoded per position on the grid, meaning up to 7 total bits per tile.
+## Install unpacked
 
-![4 bit cimbar encoding](https://github.com/sz3/cimbar-samples/blob/v0.5/docs/encoding.png)
+1. Open `chrome://extensions` in desktop Chrome 152 or newer.
+2. Enable **Developer mode**.
+3. Select **Load unpacked**.
+4. Choose the [`extension/`](extension/) directory.
+5. Pin the extension and click its toolbar icon.
 
-There are multiple color schemes:
-* "dark" mode -- meant for backlit computer screens, with bright tiles on a black background
-* "light" mode -- meant for paper, with dark tiles on a white background
+See [`docs/EXTENSION.md`](docs/EXTENSION.md) for complete usage and privacy
+information.
 
-Cimbar was inspired by [image hashing](https://github.com/JohannesBuchner/imagehash/). On a per-tile basis, the cimbar decoder compares the tile against a dictionary of 16 expected tiles -- each of which maps to a 4 bit pattern -- and chooses the one with the closest imagehash, as measured by [hamming distance](https://en.wikipedia.org/wiki/Hamming_distance). Similarly, the decoder will compare the average color of a tile to a dictionary of (ex: 4) expected colors, and choose the one with the closest color.
+## Build a distributable ZIP
 
-[Error correction](https://en.wikipedia.org/wiki/Reed%E2%80%93Solomon_error_correction) is applied on the resulting bit stream, and the bit stream itself is interleaved across the image -- that is, adjacent tiles do not contain adjacent data -- to tolerate localized errors in a source image.
+No compilation is required. To create an archive suitable for loading or
+sharing:
 
-## But, does it really work?
-
-Yes, and I can prove it. :)
-
-* encoder: https://cimbar.org (uses [libcimbar](https://github.com/sz3/libcimbar))
-* decoder Android app: https://github.com/sz3/cfc/releases/latest
-
-The main constraints cimbar must deal with are:
-* all tiles in the tileset must be sufficient hamming distance away from each other, where *sufficient* is determined by whether the decoder can consistently place blurry or otherwise imperfect tiles in the correct "bucket".
-* all colors in the colorset must be far enough away from each other -- currently as a function of RGB value scaling -- such that color bleeding, reflections, and the like, can be overcome.
-
-Cimbar is designed to deal with some lossiness. In practice, the source image should be around 700x700 resolution or greater, in focus, and with *some* color correction handled by the camera -- as you'll hopefully find in any modern cell phone.
-
-This python cimbar implementation is a research project. It works, but it is slow, and does not handle error cases with much grace. [libcimbar](https://github.com/sz3/libcimbar), the C++ implementation, has been much more heavily optimized and tested. The target goals of the proof-of-concept were:
-1. achieve data density on the order of _10kb_ per image.
-2. validate a theoretical performance (and if possible, an implemented demonstration) of >= _100kb/s_ data transfer (800 kilobits/second) from a computer screen to a cell phone, using only animated cimbar codes and the cell phone camera.
-
-## I want numbers!
-
-* a `mode B` (8x8, 4-color, 30/155 ecc, 6-bits-per-tile) cimbar image contains `9300` raw bytes of data, and `7500` bytes with the default error correction level (30)
-* for the old `mode 8C` (8x8, 8-color, 7-bit) cimbar, the respective numbers are `10850` and `8750`
-* error correction level is `N/155`. So `ecc=30` corresponds to a `30:125` ratio of error correction bytes to "real" bytes.
-	* error correction is (for now) done via Reed Solomon, which contibutes to the rather large ratio of error correction bytes. See [ABOUT](ABOUT.md) for more technical discussion.
-
-## I want to try it!
-
-* Encoding:
-
-```
-python -m cimbar.cimbar --encode myinputfile.txt encoded.png
+```sh
+npm run package
 ```
 
-* Decoding:
+This produces `cimbar-text-bundle-extension.zip` from the `extension/`
+directory. The generated archive is intentionally not committed.
 
-```
-python -m cimbar.cimbar encoded.png myoutputfile.txt
-python -m cimbar.cimbar /tmp/encoded.png -o /tmp/myoutputfile.txt
-```
+## Test
 
-There are also some utility scripts, such as the one to measure bit errors:
-
-```
-python -m cimbar.cimbar encoded.png -o clean.txt --deskew=0 --ecc=0
-python -m cimbar.cimbar camera/001.jpg -o decode.txt --ecc=0
-python -m cimbar.grader clean.txt decode.txt
+```sh
+npm test
+npm run check
+npm run test:browser
 ```
 
-## Would you like to know more?
+The browser smoke test uses the standard macOS Chrome location by default. Set
+`CIMBAR_CHROME_PATH` when Chrome or Chromium is installed elsewhere.
 
-### [ABOUT](ABOUT.md) | [LIBCIMBAR](https://github.com/sz3/libcimbar)
+The physical camera acceptance procedure for <https://re.cimbar.org/> is
+documented in [`docs/DECODER_TEST.md`](docs/DECODER_TEST.md).
 
+## Documentation
+
+- [`docs/PRD.md`](docs/PRD.md) — product requirements
+- [`docs/JOBS.md`](docs/JOBS.md) — timestamped implementation tracker
+- [`docs/EXTENSION.md`](docs/EXTENSION.md) — installation and usage
+- [`docs/DECODER_TEST.md`](docs/DECODER_TEST.md) — camera round-trip test
+- [`extension/THIRD_PARTY_NOTICES.md`](extension/THIRD_PARTY_NOTICES.md) — dependency notice
+
+## License
+
+This repository is licensed under the Mozilla Public License 2.0. Bundled
+`libcimbar` assets retain their upstream MPL-2.0 notice in
+`extension/vendor/LICENSE-libcimbar`.
