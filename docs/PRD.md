@@ -73,6 +73,7 @@ The resulting CIMBAR stream must use the upstream `libcimbar` encoder format and
   - `4C` (legacy four-color mode)
 - Support 5, 10, 15, and 20 RPS, with 15 as the default. “RPS” is the UI term for rendered CIMBAR frames per second.
 - Support visible output widths from 512 through 2048 pixels. Preserve each mode's official native WebGL dimensions and aspect ratio, then scale the visible canvas to the selected width or the available viewport, whichever is smaller. This avoids altering the encoded symbol grid.
+- Keep successive CIMBAR frames aligned to a fixed screen position without libcimbar's built-in alternating display offset.
 - Provide pause/resume, restart, fullscreen, and exit controls.
 - Request a screen wake lock while actively displaying when Chrome allows it; failure must not prevent encoding.
 - Warn users before animation that flashing imagery may affect people with photosensitive epilepsy.
@@ -114,6 +115,7 @@ The release is acceptable when all of the following are true:
 7. An encoded sample is recoverable as the named ZIP by the current web decoder at <https://re.cimbar.org/>, and the ZIP extracts to the original documents.
 8. Automated unit tests cover ZIP construction, CRC-32, path normalization, XML validation, and settings validation.
 9. A browser smoke test confirms the official local WASM initializes and renders a non-empty frame.
+10. A browser smoke test confirms that nonzero renderer alignment offsets are suppressed during playback.
 
 ## 9. Test strategy
 

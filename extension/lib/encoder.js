@@ -1,3 +1,24 @@
+const STABILITY_STATE = '__cimbarStableFrameAlignment';
+
+export function stabilizeFrameAlignment(gl) {
+  if (!gl?.uniform2f) throw new Error('CIMBAR WebGL context is unavailable.');
+  if (gl[STABILITY_STATE]) return gl[STABILITY_STATE];
+
+  const nativeUniform2f = gl.uniform2f.bind(gl);
+  const state = { calls: 0, corrected: 0 };
+
+  // libcimbar v0.6.8 uses its only vec2 uniform for an intentional alternating
+  // display offset. Keeping that transform at zero prevents the code from
+  // moving by eight pixels between frames without changing encoded frame data.
+  gl.uniform2f = (location, x, y) => {
+    state.calls += 1;
+    if (x !== 0 || y !== 0) state.corrected += 1;
+    return nativeUniform2f(location, 0, 0);
+  };
+  Object.defineProperty(gl, STABILITY_STATE, { value: state });
+  return state;
+}
+
 export class CimbarEncoder {
   constructor(canvas, onState = () => {}) {
     this.canvas = canvas;
@@ -32,6 +53,7 @@ export class CimbarEncoder {
     const height = Math.max(4, Math.round(settings.pixels / ratio));
     const initialized = module._cimbare_init_window(0, 0);
     if (initialized < 0) throw new Error(`CIMBAR WebGL initialization failed (${initialized}).`);
+    stabilizeFrameAlignment(module.ctx);
     this.displaySize = { width: settings.pixels, height };
     this.applyDisplaySize();
 
