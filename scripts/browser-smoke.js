@@ -140,6 +140,7 @@ try {
       canvasWidth: document.querySelector('#cimbar-canvas').width,
       canvasHeight: document.querySelector('#cimbar-canvas').height,
       wasmLoaded: Boolean(window.Module?._cimbare_render),
+      alignmentCorrections: window.Module?.ctx?.__cimbarStableFrameAlignment?.corrected ?? 0,
       documentCount: document.querySelectorAll('.document-card').length
     })`,
     returnByValue: true,
@@ -152,6 +153,7 @@ try {
   assert.equal(result.documentCount, 2);
   assert.equal(result.canvasWidth, 1040);
   assert.equal(result.canvasHeight, 1040);
+  assert(result.alignmentCorrections > 0, 'libcimbar frame offsets were not stabilized.');
   const screenshot = await cdp.call('Page.captureScreenshot', { format: 'png' });
   assert(screenshot.result.data.length > 10_000, 'Rendered page screenshot was unexpectedly empty.');
   cdp.close();
