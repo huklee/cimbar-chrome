@@ -6,11 +6,12 @@ This is the release acceptance procedure for the camera-dependent requirement.
 
 1. Load `extension/` as an unpacked extension in Chrome 152 or newer.
 2. On a second camera-enabled device, open <https://re.cimbar.org/> and grant camera access.
-3. In the extension, create these documents:
+3. In the extension editor, type `cimbar` to unlock transfer mode.
+4. Create these documents:
    - `hello.txt`: `Hello from the offline CIMBAR extension. 안녕하세요.`
    - `config.xml`: `<?xml version="1.0" encoding="UTF-8"?><config enabled="true"><name>CIMBAR</name></config>`
-4. Use archive name `decoder-acceptance`, mode B, 15 RPS, and 1024 px.
-5. Select **Build & display CIMBAR**, acknowledge the flashing-image warning, and point the decoder camera at the full barcode.
+5. Use archive name `decoder-acceptance`, mode B, 15 RPS, and 1024 px.
+6. Select **Build & display CIMBAR**, acknowledge the flashing-image warning, and point the decoder camera at the full barcode.
 
 ## Pass criteria
 

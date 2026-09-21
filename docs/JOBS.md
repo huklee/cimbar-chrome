@@ -35,6 +35,13 @@ Timestamps use Korea Standard Time (KST, UTC+09:00).
 - [x] Add explicit photosensitivity warning before playback. — completed 2026-09-20 23:02 KST
 - [x] Stabilize frame alignment by suppressing libcimbar's alternating display offset. — completed 2026-09-22 00:08 KST
 
+## Undercover ZIP mode
+
+- [x] Replace default Chrome and editor branding with the neutral Text Bundle ZIP identity. — completed 2026-09-22 01:14 KST
+- [x] Hide transfer and image controls by default while retaining standalone ZIP creation and download. — completed 2026-09-22 01:14 KST
+- [x] Add a session-only `cimbar` typing sequence that restores the complete transfer interface. — completed 2026-09-22 01:14 KST
+- [x] Add and enforce the project versioning policy; bump the feature release to 1.1.0. — completed 2026-09-22 01:14 KST
+
 ## Verification
 
 - [x] Add unit tests for CRC-32, ZIP structure, filenames, XML, and settings. — completed 2026-09-20 23:02 KST
@@ -51,3 +58,4 @@ Timestamps use Korea Standard Time (KST, UTC+09:00).
 - 2026-09-20 23:01 KST — desktop Chrome 153 headless: official local v0.6.8 WASM loaded; malformed XML was blocked; two-document ZIP encoded; native 1040×1040 mode-B frame rendered successfully under the extension CSP.
 - 2026-09-20 23:01 KST — packaged extension archive: all entries passed `unzip -t`; size 688 KiB.
 - 2026-09-22 00:08 KST — 11/11 unit tests and extension validation passed; desktop Chrome 153 rendered the live WASM stream and corrected 24 nonzero alignment offsets during the browser smoke test.
+- 2026-09-22 01:14 KST — 14/14 unit tests, extension validation, and packaging passed; Chrome 153 verified a CIMBAR-free ZIP-only default, successful ZIP creation before unlock, the `cimbar` unlock sequence, lazy WASM loading, and live stabilized transfer playback.

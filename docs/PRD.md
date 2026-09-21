@@ -18,9 +18,10 @@ The resulting CIMBAR stream must use the upstream `libcimbar` encoder format and
 3. Produce a deterministic, unencrypted ZIP archive entirely in the browser.
 4. Feed the ZIP bytes into the official `libcimbar` WebAssembly encoder bundled with the extension.
 5. Let users adjust animation rate (RPS/frames per second), rendered barcode pixel size, and CIMBAR encoding mode.
-6. Provide a large, distraction-free display suitable for camera scanning and an accessible photosensitivity warning.
-7. Require no host permissions, remote code, server, login, upload, or runtime asset download.
-8. Load and operate as a Manifest V3 extension on Chrome desktop major 152.
+6. Present a neutral text-to-ZIP utility by default and reveal CIMBAR functionality only after the user types the `cimbar` unlock sequence.
+7. Provide a large, distraction-free display suitable for camera scanning and an accessible photosensitivity warning.
+8. Require no host permissions, remote code, server, login, upload, or runtime asset download.
+9. Load and operate as a Manifest V3 extension on Chrome desktop major 152.
 
 ## 3. Non-goals
 
@@ -35,11 +36,12 @@ The resulting CIMBAR stream must use the upstream `libcimbar` encoder format and
 1. The user clicks the extension toolbar button; the editor opens in a dedicated tab.
 2. One initial text entry is present. The user edits its filename, chooses TXT or XML, and enters text.
 3. The user adds any number of additional entries and optionally reorders, duplicates, or removes them.
-4. The user chooses a ZIP filename, CIMBAR mode, RPS, and output pixel width.
-5. The user presses **Build & display CIMBAR**.
-6. The extension validates filenames, duplicate paths, XML documents, and size constraints; it then creates the ZIP locally.
-7. The full-window CIMBAR display begins. The user scans it with <https://re.cimbar.org/> and downloads the decoded ZIP.
-8. The user exits the display to revise content or settings.
+4. The user chooses a ZIP filename and creates or downloads the archive locally.
+5. When transfer is needed, the user types `cimbar` to reveal mode, RPS, pixel-width, and display controls.
+6. The user presses **Build & display CIMBAR**.
+7. The extension validates filenames, duplicate paths, XML documents, and size constraints; it then creates the ZIP locally.
+8. The full-window CIMBAR display begins. The user scans it with <https://re.cimbar.org/> and downloads the decoded ZIP.
+9. The user exits the display to revise content or settings.
 
 ## 5. Functional requirements
 
@@ -85,6 +87,9 @@ The resulting CIMBAR stream must use the upstream `libcimbar` encoder format and
 - Use Manifest V3 with `minimum_chrome_version: "152"`.
 - Use an extension-page content security policy that permits only local scripts plus WebAssembly execution.
 - Open one reusable editor tab when the toolbar action is clicked.
+- Use **Text Bundle ZIP** branding in Chrome and in the default editor state, with no visible CIMBAR wording or image-transfer controls.
+- In the default state, validate, build, and download ZIP archives without opening the image display flow.
+- Unlock the full CIMBAR interface when the user types `cimbar` anywhere in the editor. Keep this state in memory only so every reload and newly opened editor starts locked.
 
 ## 6. UX and accessibility requirements
 
@@ -116,6 +121,7 @@ The release is acceptable when all of the following are true:
 8. Automated unit tests cover ZIP construction, CRC-32, path normalization, XML validation, and settings validation.
 9. A browser smoke test confirms the official local WASM initializes and renders a non-empty frame.
 10. A browser smoke test confirms that nonzero renderer alignment offsets are suppressed during playback.
+11. A browser smoke test confirms that ZIP creation works with no visible CIMBAR wording or transfer controls before unlock, and that typing `cimbar` restores the complete transfer flow.
 
 ## 9. Test strategy
 

@@ -6,13 +6,15 @@
 2. Open `chrome://extensions`.
 3. Enable **Developer mode**.
 4. Select **Load unpacked** and choose this repository's `extension/` folder.
-5. Pin **CIMBAR Text Bundle Encoder** and click its toolbar icon. The extension opens its editor in a reusable tab.
+5. Pin **Text Bundle ZIP** and click its toolbar icon. The extension opens its editor in a reusable tab.
 
 No server, build step, account, host permission, or internet connection is required. The official `libcimbar` v0.6.8 JavaScript and WebAssembly encoder is included locally.
 
 ## Use
 
-Add documents, edit each filename, select TXT or XML, and enter the content. Choose the archive name, CIMBAR mode, RPS, and pixel width. **Build & display CIMBAR** validates the bundle and shows the animated code after a flashing-image warning.
+By default, the extension is a neutral text-to-ZIP utility. Add documents, edit each filename, select TXT or XML, enter the content, and choose the archive name. **Create ZIP** validates the bundle and enables **Download latest ZIP**. Transfer branding, image settings, and display controls are not visible in this mode.
+
+To enable transfer mode, type `cimbar` anywhere in the editor. Mode, RPS, pixel-width, and display controls then appear and **Build & display CIMBAR** becomes available. The unlock lasts only for the current page session; reload or reopen the editor to return to ZIP-only mode.
 
 Use <https://re.cimbar.org/> on a camera-enabled device to scan. The decoder returns the named ZIP archive; extract it to recover all documents. The **Download latest ZIP** button is useful for checking the exact pre-transmission archive.
 

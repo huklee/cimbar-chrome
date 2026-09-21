@@ -1,8 +1,8 @@
 # CIMBAR Text Bundle Encoder
 
-A self-contained Chrome extension for composing multiple TXT or XML documents,
-packaging them into a ZIP archive, and transmitting the archive as an animated
-CIMBAR barcode.
+A self-contained Chrome extension for composing multiple TXT or XML documents
+and packaging them into a ZIP archive. Its optional animated CIMBAR transfer
+tools are concealed until explicitly unlocked.
 
 All editing, validation, ZIP creation, and encoding happens locally. The
 extension bundles the official `libcimbar` v0.6.8 JavaScript and WebAssembly
@@ -14,6 +14,8 @@ encoder, so it needs no server, runtime download, account, or host permission.
 - TXT and XML output with XML well-formedness validation
 - Editable UTF-8 filenames and archive name
 - Deterministic ZIP32 generation with CRC-32 checksums
+- Neutral **Text Bundle ZIP** interface by default, with no transfer branding or image controls
+- Session-only transfer unlock by typing `cimbar`
 - CIMBAR B, Bm, Bu, and legacy 4C modes
 - 5, 10, 15, and 20 rendered frames per second
 - Adjustable 512–2048 px display size while preserving native encoder geometry
@@ -29,6 +31,10 @@ encoder, so it needs no server, runtime download, account, or host permission.
 3. Select **Load unpacked**.
 4. Choose the [`extension/`](extension/) directory.
 5. Pin the extension and click its toolbar icon.
+
+The extension opens as a text-to-ZIP utility. Type `cimbar` anywhere in the
+editor to reveal the complete transfer controls for the current page session.
+Reloading or reopening the editor returns it to ZIP-only mode.
 
 See [`docs/EXTENSION.md`](docs/EXTENSION.md) for complete usage and privacy
 information.
@@ -65,6 +71,7 @@ documented in [`docs/DECODER_TEST.md`](docs/DECODER_TEST.md).
 - [`docs/JOBS.md`](docs/JOBS.md) — timestamped implementation tracker
 - [`docs/EXTENSION.md`](docs/EXTENSION.md) — installation and usage
 - [`docs/DECODER_TEST.md`](docs/DECODER_TEST.md) — camera round-trip test
+- [`docs/VERSIONING.md`](docs/VERSIONING.md) — release versioning policy
 - [`extension/THIRD_PARTY_NOTICES.md`](extension/THIRD_PARTY_NOTICES.md) — dependency notice
 
 ## License
