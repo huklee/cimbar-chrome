@@ -3,23 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>CIMBAR Text Bundle Encoder</title>
+  <title>Text Bundle ZIP</title>
   <link rel="stylesheet" href="app.css">
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="app.html" aria-label="CIMBAR encoder home">
+    <a class="brand" id="brand" href="app.html" aria-label="Text Bundle ZIP home">
       <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      <span><strong>CIMBAR</strong><small>TEXT BUNDLE ENCODER</small></span>
+      <span><strong id="brand-title">BUNDLE</strong><small id="brand-subtitle">TEXT TO ZIP</small></span>
     </a>
     <div class="offline-badge"><span></span> Local-only · Offline ready</div>
   </header>
 
   <main>
     <section class="intro" aria-labelledby="page-title">
-      <p class="eyebrow">AIR-GAPPED FILE TRANSFER</p>
-      <h1 id="page-title">Turn text into<br><em>moving light.</em></h1>
-      <p>Compose a small bundle of TXT or XML documents. This extension zips them locally and renders a decoder-compatible CIMBAR stream—nothing leaves this browser.</p>
+      <p class="eyebrow" id="hero-eyebrow">LOCAL TEXT ARCHIVE</p>
+      <h1 id="page-title"><span id="hero-line">Turn text into</span><br><em id="hero-accent">one ZIP archive.</em></h1>
+      <p id="hero-description">Compose TXT or XML documents and package them into a ZIP file locally. Nothing leaves this browser.</p>
     </section>
 
     <div class="workspace">
@@ -32,14 +32,14 @@
       </section>
 
       <aside class="settings-panel" aria-labelledby="settings-title">
-        <div class="section-heading compact"><div><span class="step">02</span><h2 id="settings-title">Transmission</h2></div></div>
+        <div class="section-heading compact"><div><span class="step">02</span><h2 id="settings-title">ZIP settings</h2></div></div>
 
         <label class="field">
           <span>Archive filename</span>
-          <span class="input-suffix"><input id="archive-name" value="cimbar-bundle" autocomplete="off" spellcheck="false"><b>.zip</b></span>
+          <span class="input-suffix"><input id="archive-name" value="text-bundle" autocomplete="off" spellcheck="false"><b>.zip</b></span>
         </label>
 
-        <fieldset class="field">
+        <fieldset class="field" data-transfer-only hidden>
           <legend>Encoding mode</legend>
           <div class="mode-grid" id="mode-options">
             <label><input type="radio" name="mode" value="B" checked><span><b>B</b><small>Fast · default</small></span></label>
@@ -49,14 +49,14 @@
           </div>
         </fieldset>
 
-        <label class="field">
+        <label class="field" data-transfer-only hidden>
           <span>RPS <output id="rps-output">15</output></span>
           <input id="rps" type="range" min="0" max="3" value="2" step="1" list="rps-values">
           <datalist id="rps-values"><option value="0" label="5"><option value="1" label="10"><option value="2" label="15"><option value="3" label="20"></datalist>
           <small>Rendered frames per second. 15 is recommended.</small>
         </label>
 
-        <label class="field">
+        <label class="field" data-transfer-only hidden>
           <span>Barcode pixel width</span>
           <select id="pixels">
             <option value="512">512 px</option>
@@ -72,11 +72,11 @@
         <div class="bundle-summary" aria-live="polite">
           <span>Bundle estimate</span>
           <strong id="bundle-size">0 B</strong>
-          <small id="bundle-count">1 file before ZIP/CIMBAR compression</small>
+          <small id="bundle-count">1 file before ZIP compression</small>
         </div>
 
-        <p id="status" class="status" role="status" aria-live="polite">WASM encoder loading…</p>
-        <button class="button primary" id="build" type="button">Build &amp; display CIMBAR <span>↗</span></button>
+        <p id="status" class="status" role="status" aria-live="polite">Ready to build a ZIP.</p>
+        <button class="button primary" id="build" type="button"><span id="build-label">Create ZIP</span><span id="build-arrow" hidden>↗</span></button>
         <button class="button ghost" id="download-zip" type="button" disabled>Download latest ZIP</button>
       </aside>
     </div>
@@ -127,8 +127,6 @@
     <p class="scan-hint">Open <strong>re.cimbar.org</strong> on a camera-enabled device and center this frame.</p>
   </section>
 
-  <script src="cimbar-runtime.js"></script>
-  <script src="vendor/cimbar.js"></script>
   <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -110,6 +110,13 @@ try {
 
   const interaction = `(() => {
     const fire = (element, type) => element.dispatchEvent(new Event(type, { bubbles: true }));
+    const initialVisibleText = document.body.innerText.toLowerCase();
+    const undercoverByDefault = document.documentElement.dataset.transferMode === 'locked'
+      && document.querySelector('#build-label').textContent === 'Create ZIP'
+      && [...document.querySelectorAll('[data-transfer-only]')].every((element) => element.hidden)
+      && !initialVisibleText.includes('cimbar')
+      && !window.Module
+      && !window.cimbarModuleReady;
     const first = document.querySelector('.document-card textarea');
     first.value = 'Hello from Chrome. 안녕하세요.'; fire(first, 'input');
     document.querySelector('#add-document').click();
@@ -123,15 +130,37 @@ try {
       && document.querySelector('#status').dataset.kind === 'error';
     content.value = '<config enabled="true"/>'; fire(content, 'input');
     document.querySelector('#build').click();
+    const zipOnlyBuildWorked = !document.querySelector('#warning-dialog').open
+      && !document.querySelector('#download-zip').disabled
+      && document.querySelector('#status').dataset.kind === 'success';
+    for (const key of 'cimbar') {
+      document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+    }
+    const transferUnlocked = document.documentElement.dataset.transferMode === 'unlocked'
+      && document.querySelector('#build-label').textContent === 'Build & display CIMBAR'
+      && [...document.querySelectorAll('[data-transfer-only]')].every((element) => !element.hidden);
+    document.querySelector('#build').click();
     document.querySelector('#confirm-display').click();
-    return { malformedXmlBlocked };
+    return { undercoverByDefault, malformedXmlBlocked, zipOnlyBuildWorked, transferUnlocked };
   })()`;
   const interactionResult = await cdp.call('Runtime.evaluate', { expression: interaction, returnByValue: true });
   if (interactionResult.result.exceptionDetails) {
     throw new Error(interactionResult.result.exceptionDetails.exception?.description ?? 'Browser interaction failed.');
   }
-  assert.equal(interactionResult.result.result.value.malformedXmlBlocked, true);
-  await new Promise((resolveWait) => setTimeout(resolveWait, 7000));
+  assert.deepEqual(interactionResult.result.result.value, {
+    undercoverByDefault: true,
+    malformedXmlBlocked: true,
+    zipOnlyBuildWorked: true,
+    transferUnlocked: true,
+  });
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    const alignment = await cdp.call('Runtime.evaluate', {
+      expression: 'window.Module?.ctx?.__cimbarStableFrameAlignment?.corrected ?? 0',
+      returnByValue: true,
+    });
+    if (alignment.result.result.value > 0) break;
+    await new Promise((resolveWait) => setTimeout(resolveWait, 100));
+  }
   const evaluated = await cdp.call('Runtime.evaluate', {
     expression: `({
       status: document.querySelector('#status').textContent,

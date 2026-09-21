@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "CIMBAR Text Bundle Encoder",
-  "description": "Create text and XML bundles and transmit them as offline CIMBAR animations.",
-  "version": "1.0.0",
+  "name": "Text Bundle ZIP",
+  "description": "Create local ZIP archives from multiple TXT and XML documents.",
+  "version": "1.1.0",
   "minimum_chrome_version": "152",
   "permissions": ["storage"],
   "action": {
-    "default_title": "Open CIMBAR Text Bundle Encoder",
+    "default_title": "Open Text Bundle ZIP",
     "default_icon": {
       "16": "icons/icon-16.png",
       "32": "icons/icon-32.png",
